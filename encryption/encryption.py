@@ -5,10 +5,13 @@ import os
 from handlers import cd
 
 '''
-    This module encrypts files with AES and CBC mode.
+    This module AES encrypts files with CBC mode.
 '''
 
 def myEncrypt(message, key):
+    '''
+        Encrypt a message with a given key.
+    '''
     if len(key) < 32:
         return Exception("Key length must be at least 32.")
     
@@ -24,7 +27,13 @@ def myEncrypt(message, key):
 
     
 def myFileEncrypt(filename):
+    '''
+        Encrypt a file with a randomly generated 32-bit key.
+    '''
+
+    # Open image file and save the bytes
     with open(filename, 'rb') as f:
+        print('Reading file...')
         content = b''.join(f.readlines())
 
     # Get file extension
@@ -33,21 +42,29 @@ def myFileEncrypt(filename):
     # Generate random key
     key = os.urandom(32)
 
+    # Encrypt the contents of the file
     C, IV = myEncrypt(content, key)
 
     return (C, IV, key, ext)
 
 def main():
-    INPUT_DIR = 'input'
+
+    # Paths to input and output folders
+    INPUT_DIR = 'input' 
     OUTPUT_DIR = 'output'
 
+    # Sample image file 
     input_file = 'smile.jpg'
+
     # Encrypt the file
-    result = myFileEncrypt(f'{INPUT_DIR}/{filename}')
+    C, IV, key, ext = myFileEncrypt(f'{INPUT_DIR}/{filename}')
 
     # Save the encrypted file
-    with open(f'{OUTPUT_DIR}/encrypted_file{result[3]}', 'wb') as f:
-        f.write(result[0])
+    with open(f'{OUTPUT_DIR}/encrypted_file{ext}', 'wb') as f:
+        print('Saving file...')
+        f.write(C)
+
+    print('Done.')
     
 if __name__ == '__main__':
     main()

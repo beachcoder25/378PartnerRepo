@@ -1,6 +1,9 @@
 from os import getcwd, chdir
 from contextlib import contextmanager
 
+'''
+    This module contains handlers for generic situations.
+'''
 
 @contextmanager
 def cd(dest):
