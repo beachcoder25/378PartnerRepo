@@ -1,4 +1,4 @@
-from os import getcwd, listdir, chdir
+from os import getcwd, chdir
 from contextlib import contextmanager
 
 

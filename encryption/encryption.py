@@ -1,6 +1,11 @@
 import cryptography
 
-from cd_handler import cd
+from handlers import cd
+
+'''
+    This module encrypts files with AES and CBC mode.
+'''
+
 
 def main():
     pass
