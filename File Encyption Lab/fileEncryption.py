@@ -13,7 +13,7 @@ def myEncrypt(message, key):
 
 
     if(len(key) <32):
-        return "Key length is less than the required 32 bits"
+        return "ERROR: Key length is less than the required 32 bits"
 
     # generate a 16 Bytes IV
     IV = os.urandom(16)
