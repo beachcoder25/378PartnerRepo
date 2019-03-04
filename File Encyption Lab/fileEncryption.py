@@ -1,5 +1,6 @@
 import os
-from cryptography.hazmat.primiteives.ciphers import Cipher, algorithms, modes
+import cryptography
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
 
 # (C, IV)= Myencrypt(message, key):
@@ -14,13 +15,32 @@ def myEncrypt(message, key):
     if(len(key) <32):
         return "Key length is less than the required 32 bits"
 
-    backend = default_backend()
-
-    key = os.urandom(32)
-
     # generate a 16 Bytes IV
     IV = os.urandom(16)
 
+    backend = default_backend()
+    cipher = Cipher(algorithms.AES(key), modes.CBC(IV), backend=backend)
+    encryptor = cipher.encryptor()
+    ct = encryptor.update(message) + encryptor.finalize()
+
+
+    # Decryption test
+    #decryptor = cipher.decryptor()
+    #decryptor.update(ct) + decryptor.finalize()
+
+    print(ct)
+
+    
+
+    
+
 
 def main():
-    
+
+    key = os.urandom(32)
+    message = "Hello"
+
+    myEncrypt(message, key)
+
+if __name__ == '__main__':
+    main()
