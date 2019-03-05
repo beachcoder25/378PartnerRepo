@@ -48,6 +48,16 @@ def myEncrypt(message, key):
     #print(C)
 
     
+def myFileEncrypt(message, key):
+
+    # In this method, you'll generate a 32Byte key. You open and read the file as a string. 
+    # You then call the above method to encrypt your file using the key you generated. 
+    # You return the cipher C, IV, key and the extension of the file (as a string).
+
+    key = os.urandom(32)
+
+    desktopFilePath = 'C:/Users/corni/Desktop/378TestFile.txt'
+    textFile = open(desktopFilePath, 'r') # Returns file object, with read privileges
 
     
 
@@ -56,7 +66,7 @@ def main():
 
     key = os.urandom(32)
     message1 = b"a secret message"
-    message = b"sixteen  letters"
+    message = b"sixteen  letterssixteen  letters"
     
 
     # padder = padding.PKCS7(128).padder()
