@@ -58,6 +58,8 @@ def myFileEncrypt(message, key):
 
     desktopFilePath = 'C:/Users/corni/Desktop/378TestFile.txt'
     textFile = open(desktopFilePath, 'r') # Returns file object, with read privileges
+    for line in textFile:
+        print(line, end='')
 
     
 
@@ -69,15 +71,16 @@ def main():
     message = b"sixteen  letterssixteen  letters"
     
 
-    # padder = padding.PKCS7(128).padder()
-    # padMessage = padder.update(b"Hello")
-    # print(padMessage)
+    desktopFilePath = 'C:/Users/corni/Desktop/378TestFile.txt'
+    textFile = open(desktopFilePath, 'r') # Returns file object, with read privileges
 
-    # padMessage += padder.finalize()
-    # print(padMessage)
+    for line in textFile:
+        print(line, end='')
+    #textFile.read()
+    print("\n" + str(1))
 
 
-    myEncrypt(message, key)
+    #myEncrypt(message, key)
 
 if __name__ == '__main__':
     main()
