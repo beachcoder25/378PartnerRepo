@@ -72,7 +72,7 @@ def main():
     
 
     desktopFilePath = 'C:/Users/corni/Desktop/378TestFile.txt'
-    textFile = open(desktopFilePath, 'r') # Returns file object, with read privileges
+    textFile = open(desktopFilePath, 'r') # Returns file object, with read privilegesz
 
     for line in textFile:
         print(line, end='')
