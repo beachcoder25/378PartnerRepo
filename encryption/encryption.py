@@ -54,7 +54,7 @@ def main():
     OUTPUT_DIR = 'output'
 
     # Sample image file 
-    input_file = 'smile.jpg'
+    filename = 'smile.jpg'
 
     # Encrypt the file
     C, IV, key, ext = myFileEncrypt(f'{INPUT_DIR}/{filename}')
