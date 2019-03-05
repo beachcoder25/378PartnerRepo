@@ -22,5 +22,5 @@ This module encrypts a file with AES and CBC mode using the __cryptography__ lib
 
 ## Contributors
 
-* [Gabriel Flores](https://github.com/rgabeflores)
+* [Gabriel Flores](https://github.com/rgabeflores) - [LinkedIn](https://www.linkedin.com/in/rgabrielflores/)
 * [Jonah Cornish](https://github.com/beachcoder25)
