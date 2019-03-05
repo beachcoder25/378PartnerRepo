@@ -16,17 +16,23 @@ def myEncrypt(message, key):
         return "ERROR: Key length is less than the required 32 bits"
 
     # generate a 16 Bytes IV
+    # IV is used so if we encrypt an identical piece of data that it 
+    # comes out encrypted different each time its encrypted
+    
+    backend = default_backend()
     IV = os.urandom(16)
 
-    backend = default_backend()
-    cipher = Cipher(algorithms.AES(key), modes.CBC(IV), backend=backend)
+    
+    cipher = Cipher(algorithms.AES(key), modes.CBC(IV), backend=backend)    #Cipher objects combine an algorithm such as AES with a mode like CBC
+                                                                            # Notice we pass in the (key) to our AES argument, and (IV) to our CBC mode
     encryptor = cipher.encryptor()
-    ct = encryptor.update(message) + encryptor.finalize()
+    ct = encryptor.update(message) + encryptor.finalize()                   # Cipher text = encypt message + finalize encryption
 
+    print(message)
 
     # Decryption test
-    #decryptor = cipher.decryptor()
-    #decryptor.update(ct) + decryptor.finalize()
+    decryptor = cipher.decryptor()
+    decryptor.update(ct) + decryptor.finalize()
 
     print(ct)
 
@@ -38,7 +44,7 @@ def myEncrypt(message, key):
 def main():
 
     key = os.urandom(32)
-    message = "Hello"
+    message = b"a secret message"
 
     myEncrypt(message, key)
 
