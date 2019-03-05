@@ -1,5 +1,6 @@
 import os
 import cryptography
+import base64
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import padding
@@ -49,19 +50,27 @@ def myFileEncrypt(filepath):
 
     key = os.urandom(32)
     # stringList = []
-    encryptString = ""
+    encryptTextString = ""
+    encryptPhotoString = ""
 
     
+    with open("C:/Users/corni/Desktop/trumpcat.jpg", "rb") as imageFile:
+        str = base64.b64encode(imageFile.read())
+        print(str)
     
+
+
+
+    # ENCRYPTING A TEXT FILE
     textFile = open(filepath, 'r') # Returns file object, with read privileges
     
     for line in textFile:
-        encryptString += line
+        encryptTextString += line
 
     print("In myFileEncrypt Method")
-    print(encryptString)
+    print(encryptTextString)
 
-    byteString = encryptString.encode()
+    byteString = encryptTextString.encode()
     myEncrypt(byteString, key)
 
     
@@ -77,25 +86,13 @@ def main():
     
 
     desktopFilePath = 'C:/Users/corni/Desktop/378TestFile.txt'
-    textFile = open(desktopFilePath, 'r') # Returns file object, with read privilegesz
-
-    stringList = []
-    encryptString = ""
-
-    # for line in textFile:
-    #     #print(line, end='')
-    #     stringList.append(line)
-    #     encryptString += line
-
-    # print("\n" + encryptString)
     
-
-    # #textFile.read()
-    # print("\n" + str(1))
-
+    with open("C:/Users/corni/Desktop/trumpcat.jpg", "rb") as imageFile:
+        str = base64.b64encode(imageFile.read())
+        print(str)
 
     # myEncrypt(message, key)
-    myFileEncrypt(desktopFilePath)
+    # myFileEncrypt(desktopFilePath)
 
 if __name__ == '__main__':
     main()
