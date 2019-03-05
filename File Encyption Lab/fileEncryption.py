@@ -26,15 +26,15 @@ def myEncrypt(message, key):
     cipher = Cipher(algorithms.AES(key), modes.CBC(IV), backend=backend)    #Cipher objects combine an algorithm such as AES with a mode like CBC
                                                                             # Notice we pass in the (key) to our AES argument, and (IV) to our CBC mode
     encryptor = cipher.encryptor()
-    ct = encryptor.update(message) + encryptor.finalize()                   # Cipher text = encypt message + finalize encryption
-
-    print(message)
+    C = encryptor.update(message) + encryptor.finalize()                    # Cipher text = encypt message + finalize encryption
+                                                                            # Message now encrypted
+    print(C)
 
     # Decryption test
-    decryptor = cipher.decryptor()
-    decryptor.update(ct) + decryptor.finalize()
+    #decryptor = cipher.decryptor()
+    #decryptor.update(C) + decryptor.finalize()
 
-    print(ct)
+    #print(C)
 
     
 
