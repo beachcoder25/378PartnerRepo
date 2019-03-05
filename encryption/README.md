@@ -4,7 +4,7 @@ This module encrypts a file with AES and CBC mode using the __cryptography__ lib
 
 ## Installation
 
-1. Clone the repository with this [link](https://github.com/beachcoder25/378PartnerRepo.git)
+1. Clone the repository using this [link](https://github.com/beachcoder25/378PartnerRepo.git).
 2. Install dependencies with the following terminal command:
 ```
     pip install -r requirements.txt
