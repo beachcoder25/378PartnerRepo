@@ -55,11 +55,17 @@ def myFileEncrypt(message, key):
     # You return the cipher C, IV, key and the extension of the file (as a string).
 
     key = os.urandom(32)
+    # stringList = []
+    encryptString = ""
 
     desktopFilePath = 'C:/Users/corni/Desktop/378TestFile.txt'
     textFile = open(desktopFilePath, 'r') # Returns file object, with read privileges
     for line in textFile:
         print(line, end='')
+        #stringList.append(line)
+        encryptString += line
+
+    
 
     
 
@@ -74,8 +80,17 @@ def main():
     desktopFilePath = 'C:/Users/corni/Desktop/378TestFile.txt'
     textFile = open(desktopFilePath, 'r') # Returns file object, with read privilegesz
 
+    stringList = []
+    encryptString = ""
+
     for line in textFile:
-        print(line, end='')
+        #print(line, end='')
+        stringList.append(line)
+        encryptString += line
+
+    print("\n" + encryptString)
+    
+
     #textFile.read()
     print("\n" + str(1))
 
