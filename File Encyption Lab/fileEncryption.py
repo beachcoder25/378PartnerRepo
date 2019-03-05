@@ -13,7 +13,7 @@ from cryptography.hazmat.primitives import padding
 def myEncrypt(message, key):
 
 
-    if(len(key) <32):
+    if(len(key) < 32):
         return "ERROR: Key length is less than the required 32 bits"
 
     # generate a 16 Bytes IV
@@ -35,20 +35,13 @@ def myEncrypt(message, key):
     cipher = Cipher(algorithms.AES(key), modes.CBC(IV), backend=backend)    #Cipher objects combine an algorithm such as AES with a mode like CBC
                                                                             # Notice we pass in the (key) to our AES argument, and (IV) to our CBC mode
     encryptor = cipher.encryptor()
-    C = encryptor.update(message) + encryptor.finalize()                    # Cipher text = encypt message + finalize encryption
+    C = encryptor.update(padMessage) + encryptor.finalize()                    # Cipher text = encypt message + finalize encryption
                                                                             # Message now encrypted
-    
-    
+     
     print(C)
 
-    # Decryption test
-    #decryptor = cipher.decryptor()
-    #decryptor.update(C) + decryptor.finalize()
-
-    #print(C)
-
     
-def myFileEncrypt(message, key):
+def myFileEncrypt(filepath):
 
     # In this method, you'll generate a 32Byte key. You open and read the file as a string. 
     # You then call the above method to encrypt your file using the key you generated. 
@@ -58,12 +51,18 @@ def myFileEncrypt(message, key):
     # stringList = []
     encryptString = ""
 
-    desktopFilePath = 'C:/Users/corni/Desktop/378TestFile.txt'
-    textFile = open(desktopFilePath, 'r') # Returns file object, with read privileges
+    
+    
+    textFile = open(filepath, 'r') # Returns file object, with read privileges
+    
     for line in textFile:
-        print(line, end='')
-        #stringList.append(line)
         encryptString += line
+
+    print("In myFileEncrypt Method")
+    print(encryptString)
+
+    byteString = encryptString.encode()
+    myEncrypt(byteString, key)
 
     
 
@@ -74,7 +73,7 @@ def main():
 
     key = os.urandom(32)
     message1 = b"a secret message"
-    message = b"sixteen  letterssixteen  letters"
+    message = b"sixteen  letterssixteen  let"
     
 
     desktopFilePath = 'C:/Users/corni/Desktop/378TestFile.txt'
@@ -83,19 +82,20 @@ def main():
     stringList = []
     encryptString = ""
 
-    for line in textFile:
-        #print(line, end='')
-        stringList.append(line)
-        encryptString += line
+    # for line in textFile:
+    #     #print(line, end='')
+    #     stringList.append(line)
+    #     encryptString += line
 
-    print("\n" + encryptString)
+    # print("\n" + encryptString)
     
 
-    #textFile.read()
-    print("\n" + str(1))
+    # #textFile.read()
+    # print("\n" + str(1))
 
 
-    #myEncrypt(message, key)
+    # myEncrypt(message, key)
+    myFileEncrypt(desktopFilePath)
 
 if __name__ == '__main__':
     main()
