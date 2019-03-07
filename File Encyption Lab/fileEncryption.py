@@ -23,21 +23,25 @@ def myEncrypt(message, key):
     backend = default_backend()
     IV = os.urandom(16)
 
+    print("Before:")
+    print(message[0:100])
+
     # USE PKCS7 TO PAD!!!
     # https://cryptography.io/en/latest/hazmat/primitives/padding/
     padder = padding.PKCS7(128).padder()
     padMessage = padder.update(message)
-    print(padMessage)
+   
 
     padMessage += padder.finalize()
-    print(padMessage)
+    
     
     
     cipher = Cipher(algorithms.AES(key), modes.CBC(IV), backend=backend)    #Cipher objects combine an algorithm such as AES with a mode like CBC
                                                                             # Notice we pass in the (key) to our AES argument, and (IV) to our CBC mode
     encryptor = cipher.encryptor()
     C = encryptor.update(padMessage) + encryptor.finalize()                    # Cipher text = encypt message + finalize encryption
-                                                                            # Message now encrypted
+    print("After:")
+    print(C[0:100])                                                                        # Message now encrypted
     
     
     # print(C)
@@ -56,21 +60,27 @@ def myFileEncrypt(filepath):
     key = os.urandom(32) # Generate 32 Byte key
     # stringList = []
     encryptTextString = ""
-    encryptPhotoString = ""
+    photoString = ""
 
     # Works!
     with open("C:/Users/corni/Desktop/trumpcat.jpg", "rb") as imageFile: # Open file
-        C = base64.b64encode(imageFile.read()) # Read as string
+        photoString = base64.b64encode(imageFile.read()) # Read as string
 
-    print(C)
-    print("\n\nOK\n\n")
+    #print(photoString)
+    #print("\n\nOK\n\n")
 
-    #myEncrypt(C, key)
+    C, IV = myEncrypt(photoString, key)
+
+    #print("CipherText: \n")
+    #print(C)
+    print("Initialization Vector: \n")
+    print(IV)
+    print("Key: \n")
+    print(key)
+    
+    
     
         
-
-    
-
 
 
     # ENCRYPTING A TEXT FILE
@@ -83,13 +93,6 @@ def myFileEncrypt(filepath):
     # print(encryptTextString)
 
     # byteString = encryptTextString.encode()
-
-    
-
-    
-
-    
-
 
 def main():
 
