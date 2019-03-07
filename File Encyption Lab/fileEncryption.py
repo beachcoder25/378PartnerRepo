@@ -46,7 +46,7 @@ def myFileEncrypt(filepath):
 
     # In this method, you'll generate a 32Byte key. You open and read the file as a string. 
     # You then call the above method to encrypt your file using the key you generated. 
-    # You return the cipher C, IV, key and the extension of the file (as a string).
+    # You return the cipher C, IV, key & the extension of the file (as a string).
 
     key = os.urandom(32) # Generate 32 Byte key
     photoString = ""
@@ -56,14 +56,6 @@ def myFileEncrypt(filepath):
         photoString = base64.b64encode(ext.read()) # Read as string
 
     C, IV = myEncrypt(photoString, key)
-
-    # print("\nCipherText:")
-    # print(C[0:5])
-    # print("\nInitialization Vector: ")
-    # print(IV)
-    # print("\nKey:")
-    # print(key)
-    # ext = filepath
     
     return(C, IV, key, ext)
 
@@ -78,18 +70,17 @@ def myDecrypt(C, IV, key):
     
     backend = default_backend()
     cipher = Cipher(algorithms.AES(key), modes.CBC(IV), backend=backend) 
-
     decryptor = cipher.decryptor()
-    M = decryptor.update(C) + decryptor.finalize()
 
+    M = decryptor.update(C) + decryptor.finalize()
     unpadder = padding.PKCS7(128).unpadder()
+
+    # MISTAKE
+    # Kept getting invalid padding bytes error, it was because I did unpadder.update(C) with the original ciphertext
+    # Not the decrypted text 
     unpaddedMessage = unpadder.update(M) + unpadder.finalize()
 
-    
-
     return unpaddedMessage
-
-
 
 
 def myFileDecrypt(key, IV, inputFilepath):
@@ -108,8 +99,6 @@ def myFileDecrypt(key, IV, inputFilepath):
     return M
 
     
-    
-
 def main():
 
     # File path for desktop
