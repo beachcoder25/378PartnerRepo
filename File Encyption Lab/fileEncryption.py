@@ -70,6 +70,9 @@ def myFileEncrypt(filepath):
 
 def myDecrypt(C, IV, key):
 
+    # Everything is the same as encyption, just have to make sure to unpad
+    # Made mistake of forgetting to do this
+
     if(len(key) < 32):
         raise Exception('Key length is less than the required 32 bits')
     
@@ -79,12 +82,17 @@ def myDecrypt(C, IV, key):
     decryptor = cipher.decryptor()
     M = decryptor.update(C) + decryptor.finalize()
 
+    unpadder = padding.PKCS7(128).unpadder()
+    unpaddedMessage = unpadder.update(C)
+
+    M = unpaddedMessage + unpadder.finalize()
+
     return M
 
 
 
 
-def MyFileDecrypt(key, IV, inputFilepath):
+def myFileDecrypt(key, IV, inputFilepath):
 
     encryptedPhotoString = ""
 
@@ -92,19 +100,10 @@ def MyFileDecrypt(key, IV, inputFilepath):
     with open(inputFilepath, "rb") as ext: # Open file
         encryptedPhotoString = base64.b64encode(ext.read()) # Read as string
 
-    
 
     M = myDecrypt(encryptedPhotoString, IV, key)
-
-    # print("\nCipherText:")
-    # print(C[0:5])
-    # print("\nInitialization Vector: ")
-    # print(IV)
-    # print("\nKey:")
-    # print(key)
-    # ext = filepath
     
-    return(M)
+    return M
 
     
     
@@ -123,10 +122,15 @@ def main():
     file.close() 
     print(ext)
 
-    desktopOutputFilePath = "C:/Users/corni/Desktop/trumpcat.jpg"
+
 
     # Decyption
-    MyFileDecrypt(C, key, IV, desktopOutputFilePath)
+    M = myFileDecrypt(key, IV, ext)
+
+    file = open("C:/Users/corni/Desktop/outputfile.txt","wb") # wb for writing in binary mode
+    file.write(M) # Writes cipher byte-message into text file
+    file.close() 
+    print(ext)
 
     
 
