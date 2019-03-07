@@ -23,8 +23,8 @@ def myEncrypt(message, key):
     backend = default_backend()
     IV = os.urandom(16)
 
-    #print("Before:")
-    #print(message[0:100])
+    print("Before:")
+    print(message[0:100])
 
     # USE PKCS7 TO PAD!!!
     # https://cryptography.io/en/latest/hazmat/primitives/padding/
