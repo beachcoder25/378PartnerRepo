@@ -23,8 +23,8 @@ def myEncrypt(message, key):
     backend = default_backend()
     IV = os.urandom(16)
 
-    print("Before:")
-    print(message[0:100])
+    #print("Before:")
+    #print(message[0:100])
 
     # USE PKCS7 TO PAD!!!
     # https://cryptography.io/en/latest/hazmat/primitives/padding/
@@ -40,8 +40,8 @@ def myEncrypt(message, key):
                                                                             # Notice we pass in the (key) to our AES argument, and (IV) to our CBC mode
     encryptor = cipher.encryptor()
     C = encryptor.update(padMessage) + encryptor.finalize()                    # Cipher text = encypt message + finalize encryption
-    print("After:")
-    print(C[0:100])                                                                        # Message now encrypted
+    #print("After:")
+    #print(C[0:100])                                                                        # Message now encrypted
     
     
     # print(C)
@@ -63,21 +63,22 @@ def myFileEncrypt(filepath):
     photoString = ""
 
     # Works!
-    with open("C:/Users/corni/Desktop/trumpcat.jpg", "rb") as imageFile: # Open file
-        photoString = base64.b64encode(imageFile.read()) # Read as string
+    with open(filepath, "rb") as ext: # Open file
+        photoString = base64.b64encode(ext.read()) # Read as string
 
     #print(photoString)
     #print("\n\nOK\n\n")
 
     C, IV = myEncrypt(photoString, key)
 
-    #print("CipherText: \n")
-    #print(C)
-    print("Initialization Vector: \n")
+    print("\nCipherText:")
+    print(C[0:5])
+    print("\nInitialization Vector: ")
     print(IV)
-    print("Key: \n")
+    print("\nKey:")
     print(key)
     
+    return(C, IV, key, ext)
     
     
         
@@ -96,17 +97,17 @@ def myFileEncrypt(filepath):
 
 def main():
 
-    key = os.urandom(32)
-    message1 = b"a secret message"
-    message = b"sixteen  letterssixteen  let"
-    
-
+    # File path for desktop
     desktopFilePath = "C:/Users/corni/Desktop/trumpcat.jpg"
-    
-   
 
-    #myEncrypt(message, key)
-    myFileEncrypt(desktopFilePath)
+    # File encryption
+    C, IV, key, ext = myFileEncrypt(desktopFilePath)
+
+    # Store encrypted data in a text file
+    file = open("C:/Users/corni/Desktop/testfile.txt","wb") # wb for writing in binary mode
+    file.write(C) # Writes cipher byte-message into text file
+    file.close() 
+
 
 if __name__ == '__main__':
     main()
