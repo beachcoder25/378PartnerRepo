@@ -15,7 +15,7 @@ def myEncrypt(message, key):
 
 
     if(len(key) < 32):
-        return "ERROR: Key length is less than the required 32 bits"
+        raise Exception('Key length is less than the required 32 bits')
 
     # generate a 16 Bytes IV
     # IV is used so if we encrypt an identical piece of data that it 
@@ -38,8 +38,13 @@ def myEncrypt(message, key):
     encryptor = cipher.encryptor()
     C = encryptor.update(padMessage) + encryptor.finalize()                    # Cipher text = encypt message + finalize encryption
                                                                             # Message now encrypted
-     
+    
+    
     print(C)
+    print("\n\n\n\n")
+    print(IV)
+    print("HEYHEYHEY")
+    return(C,IV)
 
     
 def myFileEncrypt(filepath):
@@ -80,18 +85,18 @@ def myFileEncrypt(filepath):
 
 def main():
 
-    key = os.urandom(32)
+    key = os.urandom(31)
     message1 = b"a secret message"
     message = b"sixteen  letterssixteen  let"
     
 
-    desktopFilePath = 'C:/Users/corni/Desktop/378TestFile.txt'
+    # desktopFilePath = 'C:/Users/corni/Desktop/378TestFile.txt'
     
-    with open("C:/Users/corni/Desktop/trumpcat.jpg", "rb") as imageFile:
-        str = base64.b64encode(imageFile.read())
-        print(str)
+    # with open("C:/Users/corni/Desktop/trumpcat.jpg", "rb") as imageFile:
+    #     str = base64.b64encode(imageFile.read())
+    #     print(str)
 
-    # myEncrypt(message, key)
+    myEncrypt(message, key)
     # myFileEncrypt(desktopFilePath)
 
 if __name__ == '__main__':
