@@ -30,24 +30,15 @@ def myEncrypt(message, key):
     # https://cryptography.io/en/latest/hazmat/primitives/padding/
     padder = padding.PKCS7(128).padder()
     padMessage = padder.update(message)
-   
-
     padMessage += padder.finalize()
-    
-    
-    
+
     cipher = Cipher(algorithms.AES(key), modes.CBC(IV), backend=backend)    #Cipher objects combine an algorithm such as AES with a mode like CBC
                                                                             # Notice we pass in the (key) to our AES argument, and (IV) to our CBC mode
     encryptor = cipher.encryptor()
     C = encryptor.update(padMessage) + encryptor.finalize()                    # Cipher text = encypt message + finalize encryption
     #print("After:")
     #print(C[0:100])                                                                        # Message now encrypted
-    
-    
-    # print(C)
-    # print("\n\n\n\n")
-    # print(IV)
-    # print("HEYHEYHEY")
+
     return(C,IV)
 
     
@@ -58,43 +49,65 @@ def myFileEncrypt(filepath):
     # You return the cipher C, IV, key and the extension of the file (as a string).
 
     key = os.urandom(32) # Generate 32 Byte key
-    # stringList = []
-    encryptTextString = ""
     photoString = ""
 
     # Works!
     with open(filepath, "rb") as ext: # Open file
         photoString = base64.b64encode(ext.read()) # Read as string
 
-    #print(photoString)
-    #print("\n\nOK\n\n")
-
     C, IV = myEncrypt(photoString, key)
 
-    print("\nCipherText:")
-    print(C[0:5])
-    print("\nInitialization Vector: ")
-    print(IV)
-    print("\nKey:")
-    print(key)
-    ext = filepath
+    # print("\nCipherText:")
+    # print(C[0:5])
+    # print("\nInitialization Vector: ")
+    # print(IV)
+    # print("\nKey:")
+    # print(key)
+    # ext = filepath
     
     return(C, IV, key, ext)
+
+
+def myDecrypt(C, IV, key):
+
+    if(len(key) < 32):
+        raise Exception('Key length is less than the required 32 bits')
+    
+    backend = default_backend()
+    cipher = Cipher(algorithms.AES(key), modes.CBC(IV), backend=backend) 
+
+    decryptor = cipher.decryptor()
+    M = decryptor.update(C) + decryptor.finalize()
+
+    return M
+
+
+
+
+def MyFileDecrypt(key, IV, inputFilepath):
+
+    encryptedPhotoString = ""
+
+    # Read encypted data back
+    with open(inputFilepath, "rb") as ext: # Open file
+        encryptedPhotoString = base64.b64encode(ext.read()) # Read as string
+
+    
+
+    M = myDecrypt(encryptedPhotoString, IV, key)
+
+    # print("\nCipherText:")
+    # print(C[0:5])
+    # print("\nInitialization Vector: ")
+    # print(IV)
+    # print("\nKey:")
+    # print(key)
+    # ext = filepath
+    
+    return(M)
+
     
     
-        
-
-
-    # ENCRYPTING A TEXT FILE
-    # textFile = open(filepath, 'r') # Returns file object, with read privileges
-    
-    # for line in textFile:
-    #     encryptTextString += line
-
-    # print("In myFileEncrypt Method")
-    # print(encryptTextString)
-
-    # byteString = encryptTextString.encode()
 
 def main():
 
@@ -110,6 +123,12 @@ def main():
     file.close() 
     print(ext)
 
+    desktopOutputFilePath = "C:/Users/corni/Desktop/trumpcat.jpg"
+
+    # Decyption
+    MyFileDecrypt(C, key, IV, desktopOutputFilePath)
+
+    
 
 if __name__ == '__main__':
     main()
