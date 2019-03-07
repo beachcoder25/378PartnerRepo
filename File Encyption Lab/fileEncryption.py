@@ -40,10 +40,10 @@ def myEncrypt(message, key):
                                                                             # Message now encrypted
     
     
-    print(C)
-    print("\n\n\n\n")
-    print(IV)
-    print("HEYHEYHEY")
+    # print(C)
+    # print("\n\n\n\n")
+    # print(IV)
+    # print("HEYHEYHEY")
     return(C,IV)
 
     
@@ -53,30 +53,38 @@ def myFileEncrypt(filepath):
     # You then call the above method to encrypt your file using the key you generated. 
     # You return the cipher C, IV, key and the extension of the file (as a string).
 
-    key = os.urandom(32)
+    key = os.urandom(32) # Generate 32 Byte key
     # stringList = []
     encryptTextString = ""
     encryptPhotoString = ""
 
+    # Works!
+    with open("C:/Users/corni/Desktop/trumpcat.jpg", "rb") as imageFile: # Open file
+        C = base64.b64encode(imageFile.read()) # Read as string
+
+    print(C)
+    print("\n\nOK\n\n")
+
+    #myEncrypt(C, key)
     
-    with open("C:/Users/corni/Desktop/trumpcat.jpg", "rb") as imageFile:
-        str = base64.b64encode(imageFile.read())
-        print(str)
+        
+
     
 
 
 
     # ENCRYPTING A TEXT FILE
-    textFile = open(filepath, 'r') # Returns file object, with read privileges
+    # textFile = open(filepath, 'r') # Returns file object, with read privileges
     
-    for line in textFile:
-        encryptTextString += line
+    # for line in textFile:
+    #     encryptTextString += line
 
-    print("In myFileEncrypt Method")
-    print(encryptTextString)
+    # print("In myFileEncrypt Method")
+    # print(encryptTextString)
 
-    byteString = encryptTextString.encode()
-    myEncrypt(byteString, key)
+    # byteString = encryptTextString.encode()
+
+    
 
     
 
@@ -85,19 +93,17 @@ def myFileEncrypt(filepath):
 
 def main():
 
-    key = os.urandom(31)
+    key = os.urandom(32)
     message1 = b"a secret message"
     message = b"sixteen  letterssixteen  let"
     
 
-    # desktopFilePath = 'C:/Users/corni/Desktop/378TestFile.txt'
+    desktopFilePath = "C:/Users/corni/Desktop/trumpcat.jpg"
     
-    # with open("C:/Users/corni/Desktop/trumpcat.jpg", "rb") as imageFile:
-    #     str = base64.b64encode(imageFile.read())
-    #     print(str)
+   
 
-    myEncrypt(message, key)
-    # myFileEncrypt(desktopFilePath)
+    #myEncrypt(message, key)
+    myFileEncrypt(desktopFilePath)
 
 if __name__ == '__main__':
     main()
