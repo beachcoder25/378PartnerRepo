@@ -83,11 +83,11 @@ def myDecrypt(C, IV, key):
     M = decryptor.update(C) + decryptor.finalize()
 
     unpadder = padding.PKCS7(128).unpadder()
-    unpaddedMessage = unpadder.update(C)
+    unpaddedMessage = unpadder.update(M) + unpadder.finalize()
 
-    M = unpaddedMessage + unpadder.finalize()
+    
 
-    return M
+    return unpaddedMessage
 
 
 
@@ -98,8 +98,10 @@ def myFileDecrypt(key, IV, inputFilepath):
 
     # Read encypted data back
     with open(inputFilepath, "rb") as ext: # Open file
-        encryptedPhotoString = base64.b64encode(ext.read()) # Read as string
 
+        # MISTAKE, was using below line to read in as a string
+        #encryptedPhotoString = base64.b64encode(ext.read()) # Read as string
+        encryptedPhotoString = b''.join(ext.readlines())                        
 
     M = myDecrypt(encryptedPhotoString, IV, key)
     
@@ -117,20 +119,21 @@ def main():
     C, IV, key, ext = myFileEncrypt(desktopFilePath)
 
     # Store encrypted data in a text file
+    print("Writing encrypted File")
     file = open("C:/Users/corni/Desktop/testfile.txt","wb") # wb for writing in binary mode
     file.write(C) # Writes cipher byte-message into text file
     file.close() 
-    print(ext)
+   
 
-
+    encryptedFilepath = "C:/Users/corni/Desktop/testfile.txt"
 
     # Decyption
-    M = myFileDecrypt(key, IV, ext)
-
+    M = myFileDecrypt(key, IV, encryptedFilepath)
+    print("Writing decrypted File")
     file = open("C:/Users/corni/Desktop/outputfile.txt","wb") # wb for writing in binary mode
     file.write(M) # Writes cipher byte-message into text file
     file.close() 
-    print(ext)
+    
 
     
 
