@@ -77,6 +77,7 @@ def myFileEncrypt(filepath):
     print(IV)
     print("\nKey:")
     print(key)
+    ext = filepath
     
     return(C, IV, key, ext)
     
@@ -107,6 +108,7 @@ def main():
     file = open("C:/Users/corni/Desktop/testfile.txt","wb") # wb for writing in binary mode
     file.write(C) # Writes cipher byte-message into text file
     file.close() 
+    print(ext)
 
 
 if __name__ == '__main__':
