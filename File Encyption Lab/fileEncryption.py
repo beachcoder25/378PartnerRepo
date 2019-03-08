@@ -21,7 +21,7 @@ def myEncrypt(message, key):
     # IV is used so if we encrypt an identical piece of data that it 
     # comes out encrypted different each time its encrypted
     backend = default_backend()
-    IV = os.urandom(16)
+    IV = os.urandom(16) # Because 16 byte blocks
 
     print("Before:")
     print(message[0:100])
@@ -49,13 +49,14 @@ def myFileEncrypt(filepath):
     # You return the cipher C, IV, key & the extension of the file (as a string).
 
     key = os.urandom(32) # Generate 32 Byte key
-    photoString = ""
+    
 
     # Works!
     with open(filepath, "rb") as ext: # Open file
-        photoString = base64.b64encode(ext.read()) # Read as string
+        # photoString = base64.b64encode(ext.read()) # Read as string
+        photoBits = b''.join(ext.readlines()) 
 
-    C, IV = myEncrypt(photoString, key)
+    C, IV = myEncrypt(photoBits, key)
     
     return(C, IV, key, ext)
 
@@ -103,23 +104,35 @@ def main():
 
     # File path for desktop
     desktopFilePath = "C:/Users/corni/Desktop/trumpcat.jpg"
+    laptopFilePath = "C:/Users/Jonah/Desktop/378Lab/trumpcat.jpg"
 
     # File encryption
-    C, IV, key, ext = myFileEncrypt(desktopFilePath)
+    # C, IV, key, ext = myFileEncrypt(desktopFilePath)
+    C, IV, key, ext = myFileEncrypt(laptopFilePath)
 
     # Store encrypted data in a text file
     print("Writing encrypted File")
-    file = open("C:/Users/corni/Desktop/testfile.txt","wb") # wb for writing in binary mode
+    
+    # DESKTOP
+    # file = open("C:/Users/corni/Desktop/testfile.txt","wb") # wb for writing in binary mode 
+
+    # LAPTOP
+    file = open("C:/Users/Jonah/Desktop/378Lab/testfile.txt","wb") # wb for writing in binary mode
     file.write(C) # Writes cipher byte-message into text file
     file.close() 
    
 
-    encryptedFilepath = "C:/Users/corni/Desktop/testfile.txt"
+    encryptedFilepath = "C:/Users/Jonah/Desktop/378Lab/testfile.txt"
 
     # Decyption
     M = myFileDecrypt(key, IV, encryptedFilepath)
     print("Writing decrypted File")
-    file = open("C:/Users/corni/Desktop/outputfile.txt","wb") # wb for writing in binary mode
+
+    # DESKTOP
+    # file = open("C:/Users/corni/Desktop/outputfile.txt","wb") # wb for writing in binary mode
+
+    # LAPTOP
+    file = open("C:/Users/Jonah/Desktop/378Lab/outputfile.jpg","wb") # wb for writing in binary mode
     file.write(M) # Writes cipher byte-message into text file
     file.close() 
     
