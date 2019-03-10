@@ -2,31 +2,35 @@ from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import padding
 
-import os
+from os import urandom, path
+
 from handlers import cd
 
 '''
     This module AES encrypts files with CBC mode.
 '''
 
+IV_SIZE = 16
+KEY_LENGTH = 32
+PADDING_BLOCK_SIZE = 128
 BACKEND = default_backend()
 
 def myEncrypt(message, key):
     '''
         Encrypt data with a given key.
     '''
-    if len(key) < 32:
+    if len(key) < KEY_LENGTH:
         return Exception("Key length must be at least 32.")
     
     # Generate random 16 Bytes
-    IV = os.urandom(16)
+    IV = urandom(IV_SIZE)
 
     # Initialize encryption object
     cipher = Cipher(algorithms.AES(key), modes.CBC(IV), backend=BACKEND)
     encryptor = cipher.encryptor()
     
     # Initialize padding object
-    padder = padding.PKCS7(128).padder()
+    padder = padding.PKCS7(PADDING_BLOCK_SIZE).padder()
 
     # Append padding to message and close padding object
     p_message = padder.update(message) + padder.finalize()
@@ -37,7 +41,7 @@ def myEncrypt(message, key):
     return (C, IV)
 
     
-def myFileEncrypt(filename):
+def myFileEncrypt(filename, klength=KEY_LENGTH):
     '''
         Encrypt a file with a randomly generated 32-bit key.
     '''
@@ -48,10 +52,10 @@ def myFileEncrypt(filename):
         content = b''.join(f.readlines())
 
     # Get file extension
-    ext = os.path.splitext(filename)[1]
+    ext = path.splitext(filename)[1]
 
     # Generate random key
-    key = os.urandom(32)
+    key = urandom(klength)
 
     # Encrypt the contents of the file
     C, IV = myEncrypt(content, key)
