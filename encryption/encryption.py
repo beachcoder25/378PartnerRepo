@@ -15,20 +15,21 @@ KEY_LENGTH = 32
 PADDING_BLOCK_SIZE = 128
 BACKEND = default_backend()
 
+
 def myEncrypt(message, key):
     '''
         Encrypt data with a given key.
     '''
     if len(key) < KEY_LENGTH:
-        return Exception("Key length must be at least 32.")
-    
+        raise Exception("Key length must be at least 32.")
+
     # Generate random 16 Bytes
     IV = urandom(IV_SIZE)
 
     # Initialize encryption object
     cipher = Cipher(algorithms.AES(key), modes.CBC(IV), backend=BACKEND)
     encryptor = cipher.encryptor()
-    
+
     # Initialize padding object
     padder = padding.PKCS7(PADDING_BLOCK_SIZE).padder()
 
@@ -40,7 +41,7 @@ def myEncrypt(message, key):
 
     return (C, IV)
 
-    
+
 def myFileEncrypt(filename, klength=KEY_LENGTH):
     '''
         Encrypt a file with a randomly generated 32-bit key.
@@ -62,6 +63,7 @@ def myFileEncrypt(filename, klength=KEY_LENGTH):
 
     return (C, IV, key, ext)
 
+
 def myDecrypt(encrypted_message, key, IV):
     '''
         Decrypt data with a given key
@@ -82,6 +84,7 @@ def myDecrypt(encrypted_message, key, IV):
 
     return M
 
+
 def myFileDecrypt(filename, key, IV):
     '''
         Decrypt a file with a given key.
@@ -92,17 +95,17 @@ def myFileDecrypt(filename, key, IV):
         content = b''.join(f.readlines())
 
     result = myDecrypt(content, key, IV)
-    
+
     return result
 
 
 def main():
 
     # Paths to input and output folders
-    INPUT_DIR = 'input' 
+    INPUT_DIR = 'input'
     OUTPUT_DIR = 'output'
 
-    # Sample image file 
+    # Sample image file
     filename = 'smile.jpg'
 
     # Encrypt the file
@@ -117,11 +120,12 @@ def main():
     M = myFileDecrypt(f'{OUTPUT_DIR}/encrypted_file{ext}', key, IV)
 
     # Save decrypted file
-    with open(f'{OUTPUT_DIR}/decrypted_file{ext}','wb') as f:
+    with open(f'{OUTPUT_DIR}/decrypted_file{ext}', 'wb') as f:
         print('Saving decrypted file...')
         f.write(M)
 
     print('Done.')
-    
+
+
 if __name__ == '__main__':
     main()
