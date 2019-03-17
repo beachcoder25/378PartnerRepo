@@ -22,14 +22,17 @@ def myEncrypt(message, key):
     # IV is used so if we encrypt an identical piece of data that it 
     # comes out encrypted different each time its encrypted
     backend = default_backend()
-    IV = os.urandom(16) # Because 16 byte blocks
+    IV_SIZE = 16 # Because 16 byte blocks
+    PAD_SIZE = 128
+
+    IV = os.urandom(IV_SIZE) 
 
     # print("Before:")
     # print(message[0:100])
 
     # USE PKCS7 TO PAD!!!
     # https://cryptography.io/en/latest/hazmat/primitives/padding/
-    padder = padding.PKCS7(128).padder()
+    padder = padding.PKCS7(PAD_SIZE).padder()
     padMessage = padder.update(message)
     padMessage += padder.finalize()
 
@@ -53,24 +56,30 @@ def MyencryptMAC(message, EncKey, HMACKey):
     # t = Mac (h)
     #        k
 
+    IV_SIZE = 16 # Because 16 byte blocks
+    PAD_SIZE = 128
+
     backend = default_backend()
-    IV = os.urandom(16) # Because 16 byte blocks
+    IV = os.urandom(IV_SIZE) 
 
    
     # USE PKCS7 TO PAD!!!
     # https://cryptography.io/en/latest/hazmat/primitives/padding/
-    padder = padding.PKCS7(128).padder()
+    padder = padding.PKCS7(PAD_SIZE).padder()
     padMessage = padder.update(message)
     padMessage += padder.finalize()
 
-    cipher = Cipher(algorithms.AES(key), modes.CBC(IV), backend=backend)    #Cipher objects combine an algorithm such as AES with a mode like CBC
+    cipher = Cipher(algorithms.AES(EncKey), modes.CBC(IV), backend=backend)    #Cipher objects combine an algorithm such as AES with a mode like CBC
                                                                             # Notice we pass in the (key) to our AES argument, and (IV) to our CBC mode
     encryptor = cipher.encryptor()
     C = encryptor.update(padMessage) + encryptor.finalize()                    # Cipher text = encypt message + finalize encryption
-    
-    C = h.update(C) # This should update the bytes with the HMAC
 
-    return(C,IV)
+    textAndKey = C + HMACKey # Concatenate encypted message with key to be hashed
+    
+    tag = hmac.HMAC(HMACKey, hashes.SHA256(), backend=default_backend())
+    tag.update(textAndKey) # This should update the bytes with the HMAC
+
+    return(C, IV, tag)
 
 
 def MyFileEncryptMAC(filepath):
@@ -91,9 +100,9 @@ def MyFileEncryptMAC(filepath):
     with open(filepath, "rb") as ext: # Open file
         photoBits = b''.join(ext.readlines()) 
 
-    C, IV = MyencryptMAC(photoBits, EncKey, HMACKey)
+    C, IV, tag = MyencryptMAC(photoBits, EncKey, HMACKey)
     
-    return(C, IV, key, ext)
+    return(C, IV, tag, EncKey, HMACKey, ext)
 
 
     
@@ -114,7 +123,7 @@ def myFileEncrypt(filepath):
     
     return(C, IV, key, ext)
 
-    
+
 
 def myDecrypt(C, IV, key):
 
