@@ -54,10 +54,11 @@ def myFileEncrypt(filepath):
 
     C, IV = myEncrypt(photoBits, key)
 
-    message = photoBits
-    HMACKey = hmac.HMAC(key, hashes.SHA256(), backend=default_backend())
+    
 
-    C, IV, tag = MyencryptMAC(message, key, HMACKey)
+    HMACKey = hmac.HMAC(photoBits, hashes.SHA256(), backend=default_backend())
+
+    C, IV, tag = MyencryptMAC(photoBits, key, HMACKey)
     
     return(C, IV, key, ext)
 
@@ -101,10 +102,16 @@ def myFileDecrypt(key, IV, inputFilepath):
 
 def MyencryptMAC(message, EncKey, HMACKey):
 
-    h = hmac.HMAC(EncKey,  hashes.SHA256(), backend = default_backend())
-    h.update(bmessage)
+    
 
-    return C, IV, tag
+    with open(message, "rb") as f:
+        byte = f.read(1)
+        while byte:
+            # Do stuff with byte.
+            HMACKey.update(byte)
+            byte = f.read(1)
+
+    return message, IV, tag
 
     
 def main():
