@@ -1,9 +1,10 @@
 import os
-import cryptography
 import base64
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import padding
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import hashes, hmac
 
 # (C, IV)= Myencrypt(message, key):
 
@@ -23,8 +24,8 @@ def myEncrypt(message, key):
     backend = default_backend()
     IV = os.urandom(16) # Because 16 byte blocks
 
-    print("Before:")
-    print(message[0:100])
+    # print("Before:")
+    # print(message[0:100])
 
     # USE PKCS7 TO PAD!!!
     # https://cryptography.io/en/latest/hazmat/primitives/padding/
@@ -36,8 +37,6 @@ def myEncrypt(message, key):
                                                                             # Notice we pass in the (key) to our AES argument, and (IV) to our CBC mode
     encryptor = cipher.encryptor()
     C = encryptor.update(padMessage) + encryptor.finalize()                    # Cipher text = encypt message + finalize encryption
-    #print("After:")
-    #print(C[0:100])                                                                        # Message now encrypted
 
     return(C,IV)
 
@@ -50,13 +49,15 @@ def myFileEncrypt(filepath):
 
     key = os.urandom(32) # Generate 32 Byte key
     
-
-    # Works!
     with open(filepath, "rb") as ext: # Open file
-        # photoString = base64.b64encode(ext.read()) # Read as string
         photoBits = b''.join(ext.readlines()) 
 
     C, IV = myEncrypt(photoBits, key)
+
+    message = photoBits
+    HMACKey = hmac.HMAC(key, hashes.SHA256(), backend=default_backend())
+
+    C, IV, tag = MyencryptMAC(message, key, HMACKey)
     
     return(C, IV, key, ext)
 
@@ -86,8 +87,6 @@ def myDecrypt(C, IV, key):
 
 def myFileDecrypt(key, IV, inputFilepath):
 
-    encryptedPhotoString = ""
-
     # Read encypted data back
     with open(inputFilepath, "rb") as ext: # Open file
 
@@ -99,40 +98,57 @@ def myFileDecrypt(key, IV, inputFilepath):
     
     return M
 
+
+def MyencryptMAC(message, EncKey, HMACKey):
+
+    h = hmac.HMAC(EncKey,  hashes.SHA256(), backend = default_backend())
+    h.update(bmessage)
+
+    return C, IV, tag
+
     
 def main():
 
     # File path for desktop
-    desktopFilePath = "C:/Users/corni/Desktop/trumpcat.jpg"
-    laptopFilePath = "C:/Users/Jonah/Desktop/378Lab/trumpcat.jpg"
+    desktopFilePath = "C:/Users/corni/Desktop/panda.jpg"
+    laptopFilePath = "C:/Users/Jonah/Desktop/378Lab/---.jpg"
 
     # File encryption
-    # C, IV, key, ext = myFileEncrypt(desktopFilePath)
-    C, IV, key, ext = myFileEncrypt(laptopFilePath)
+    
+    # Desktop
+    C, IV, key, ext = myFileEncrypt(desktopFilePath)
+
+    # Laptop
+    # C, IV, key, ext = myFileEncrypt(laptopFilePath)
 
     # Store encrypted data in a text file
     print("Writing encrypted File")
     
     # DESKTOP
-    # file = open("C:/Users/corni/Desktop/testfile.txt","wb") # wb for writing in binary mode 
+    file = open("C:/Users/corni/Desktop/testfile.txt","wb") # wb for writing in binary mode 
 
     # LAPTOP
-    file = open("C:/Users/Jonah/Desktop/378Lab/testfile.txt","wb") # wb for writing in binary mode
+    #file = open("C:/Users/Jonah/Desktop/378Lab/testfile.txt","wb") # wb for writing in binary mode
+    
     file.write(C) # Writes cipher byte-message into text file
     file.close() 
    
+    # Desktop
+    encryptedFilepath = "C:/Users/corni/Desktop/testfile.txt"
 
-    encryptedFilepath = "C:/Users/Jonah/Desktop/378Lab/testfile.txt"
+    # Laptop
+    # encryptedFilepath = "C:/Users/Jonah/Desktop/378Lab/testfile.txt"
 
     # Decyption
     M = myFileDecrypt(key, IV, encryptedFilepath)
     print("Writing decrypted File")
 
     # DESKTOP
-    # file = open("C:/Users/corni/Desktop/outputfile.txt","wb") # wb for writing in binary mode
+    file = open("C:/Users/corni/Desktop/outputfile.jpg","wb") # wb for writing in binary mode
 
     # LAPTOP
-    file = open("C:/Users/Jonah/Desktop/378Lab/outputfile.jpg","wb") # wb for writing in binary mode
+    #file = open("C:/Users/Jonah/Desktop/378Lab/outputfile.jpg","wb") # wb for writing in binary mode
+    
     file.write(M) # Writes cipher byte-message into text file
     file.close() 
     
