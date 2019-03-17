@@ -44,6 +44,24 @@ def myEncrypt(message, key):
     return(C,IV)
 
 
+def myFileEncrypt(filepath):
+
+    # In this method, you'll generate a 32Byte key. You open and read the file as a string. 
+    # You then call the above method to encrypt your file using the key you generated. 
+    # You return the cipher C, IV, key & the extension of the file (as a string).
+
+    key = os.urandom(32) # Generate 32 Byte key
+    photoString = ""
+
+    # Works!
+    with open(filepath, "rb") as ext: # Open file
+        photoString = base64.b64encode(ext.read()) # Read as string
+
+    C, IV = myEncrypt(photoString, key)
+    
+    return(C, IV, key, ext)
+
+
 def MyencryptMAC(message, EncKey, HMACKey):
 
     if(len(EncKey) < 32):
@@ -74,10 +92,11 @@ def MyencryptMAC(message, EncKey, HMACKey):
     encryptor = cipher.encryptor()
     C = encryptor.update(padMessage) + encryptor.finalize()                    # Cipher text = encypt message + finalize encryption
 
-    textAndKey = C + HMACKey # Concatenate encypted message with key to be hashed
+    #textAndKey = C + HMACKey # Concatenate encypted message with key to be hashed
     
     tag = hmac.HMAC(HMACKey, hashes.SHA256(), backend=default_backend())
-    tag.update(textAndKey) # This should update the bytes with the HMAC
+    tag.update(C) # This should update the bytes with the HMAC
+    tag.finalize()
 
     return(C, IV, tag)
 
@@ -105,24 +124,17 @@ def MyFileEncryptMAC(filepath):
     return(C, IV, tag, EncKey, HMACKey, ext)
 
 
+# def myFileDecryptMAC(EncKey, IV, inputFilepath):
+
+#     # Read encypted data back
+#     with open(inputFilepath, "rb") as ext: # Open file
+
+#         # MISTAKE, was using below line to read in as a string
+#         encryptedPhotoString = b''.join(ext.readlines())                        
+
+#     M = myDecrypt(encryptedPhotoString, IV, EncKey)
     
-def myFileEncrypt(filepath):
-
-    # In this method, you'll generate a 32Byte key. You open and read the file as a string. 
-    # You then call the above method to encrypt your file using the key you generated. 
-    # You return the cipher C, IV, key & the extension of the file (as a string).
-
-    key = os.urandom(32) # Generate 32 Byte key
-    photoString = ""
-
-    # Works!
-    with open(filepath, "rb") as ext: # Open file
-        photoString = base64.b64encode(ext.read()) # Read as string
-
-    C, IV = myEncrypt(photoString, key)
-    
-    return(C, IV, key, ext)
-
+#     return M
 
 
 def myDecrypt(C, IV, key):
@@ -162,18 +174,16 @@ def myFileDecrypt(key, IV, inputFilepath):
 
 
 
-
+def mainMAC():
     
-def main():
-
-    # File path for desktop
+     # File path for desktop
     desktopFilePath = "C:/Users/corni/Desktop/panda.jpg"
     laptopFilePath = "C:/Users/Jonah/Desktop/378Lab/---.jpg"
 
-    # File encryption
+    # File encryption (NON-MAC)
     
     # Desktop
-    C, IV, key, ext = myFileEncrypt(desktopFilePath)
+    C, IV, tag, EncKey, HMACKey, ext = MyFileEncryptMAC(desktopFilePath)
 
     # Laptop
     # C, IV, key, ext = myFileEncrypt(laptopFilePath)
@@ -196,8 +206,14 @@ def main():
     # Laptop
     # encryptedFilepath = "C:/Users/Jonah/Desktop/378Lab/testfile.txt"
 
+    print("Verifying message")
+    receiverTag = hmac.HMAC(HMACKey, hashes.SHA256(), backend=default_backend())
+    receiverTag.update(C)
+    receiverTag.verify(C)
+    print("Message verified")
+
     # Decyption
-    M = myFileDecrypt(key, IV, encryptedFilepath)
+    M = myFileDecrypt(EncKey, IV, encryptedFilepath)
     print("Writing decrypted File")
 
     # DESKTOP
@@ -208,9 +224,57 @@ def main():
     
     file.write(M) # Writes cipher byte-message into text file
     file.close() 
+
+
+
+
+# def main():
+
+#     # File path for desktop
+#     desktopFilePath = "C:/Users/corni/Desktop/panda.jpg"
+#     laptopFilePath = "C:/Users/Jonah/Desktop/378Lab/---.jpg"
+
+#     # File encryption (NON-MAC)
+    
+#     # Desktop
+#     C, IV, key, ext = myFileEncrypt(desktopFilePath)
+
+#     # Laptop
+#     # C, IV, key, ext = myFileEncrypt(laptopFilePath)
+
+#     # Store encrypted data in a text file
+#     print("Writing encrypted File")
+    
+#     # DESKTOP
+#     file = open("C:/Users/corni/Desktop/testfile.txt","wb") # wb for writing in binary mode 
+
+#     # LAPTOP
+#     #file = open("C:/Users/Jonah/Desktop/378Lab/testfile.txt","wb") # wb for writing in binary mode
+    
+#     file.write(C) # Writes cipher byte-message into text file
+#     file.close() 
+   
+#     # Desktop
+#     encryptedFilepath = "C:/Users/corni/Desktop/testfile.txt"
+
+#     # Laptop
+#     # encryptedFilepath = "C:/Users/Jonah/Desktop/378Lab/testfile.txt"
+
+#     # Decyption
+#     M = myFileDecrypt(key, IV, encryptedFilepath)
+#     print("Writing decrypted File")
+
+#     # DESKTOP
+#     file = open("C:/Users/corni/Desktop/outputfile.jpg","wb") # wb for writing in binary mode
+
+#     # LAPTOP
+#     #file = open("C:/Users/Jonah/Desktop/378Lab/outputfile.jpg","wb") # wb for writing in binary mode
+    
+#     file.write(M) # Writes cipher byte-message into text file
+#     file.close() 
     
 
     
 
-if __name__ == '__main__':
-    main()
+# if __name__ == '__main__':
+#     main()
