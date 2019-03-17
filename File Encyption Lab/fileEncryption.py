@@ -43,18 +43,20 @@ def myEncrypt(message, key):
 
 def MyencryptMAC(message, EncKey, HMACKey):
 
-     if(len(EncKey) < 32):
+    if(len(EncKey) < 32):
         raise Exception('Key length is less than the required 32 bits')
 
-    # generate a 16 Bytes IV
-    # IV is used so if we encrypt an identical piece of data that it 
-    # comes out encrypted different each time its encrypted
+    # Notes
+
+    # h = H(M)
+
+    # t = Mac (h)
+    #        k
+
     backend = default_backend()
     IV = os.urandom(16) # Because 16 byte blocks
 
-    # print("Before:")
-    # print(message[0:100])
-
+   
     # USE PKCS7 TO PAD!!!
     # https://cryptography.io/en/latest/hazmat/primitives/padding/
     padder = padding.PKCS7(128).padder()
@@ -70,21 +72,29 @@ def MyencryptMAC(message, EncKey, HMACKey):
 
     return(C,IV)
 
-    # Notes
 
-    # h = H(M)
+def MyFileEncryptMAC(filepath):
 
-    # t = Mac (h)
-    #        k
+    # In this method, you'll generate a 32Byte key. You open and read the file as a string. 
+    # You then call the above method to encrypt your file using the key you generated. 
+    # You return the cipher C, IV, key & the extension of the file (as a string).
 
-    with open(message, "rb") as f:
-        byte = f.read(1)
-        while byte:
-            # Do stuff with byte.
-            HMACKey.update(byte)
-            byte = f.read(1)
+    HMAC_KEY = 16
+    HMAC_KEY_LEN = len(HMAC_KEY)
 
-    return message, IV, tag
+    HMACKey = os.urandom(HMAC_KEY)
+
+    ENC_KEY = 32
+
+    EncKey = os.urandom(ENC_KEY) # Generate 32 Byte key
+    
+    with open(filepath, "rb") as ext: # Open file
+        photoBits = b''.join(ext.readlines()) 
+
+    C, IV = MyencryptMAC(photoBits, EncKey, HMACKey)
+    
+    return(C, IV, key, ext)
+
 
     
 def myFileEncrypt(filepath):
@@ -94,14 +104,17 @@ def myFileEncrypt(filepath):
     # You return the cipher C, IV, key & the extension of the file (as a string).
 
     key = os.urandom(32) # Generate 32 Byte key
-    
-    with open(filepath, "rb") as ext: # Open file
-        photoBits = b''.join(ext.readlines()) 
+    photoString = ""
 
-    C, IV = myEncrypt(photoBits, key)
+    # Works!
+    with open(filepath, "rb") as ext: # Open file
+        photoString = base64.b64encode(ext.read()) # Read as string
+
+    C, IV = myEncrypt(photoString, key)
     
     return(C, IV, key, ext)
 
+    
 
 def myDecrypt(C, IV, key):
 
@@ -132,7 +145,6 @@ def myFileDecrypt(key, IV, inputFilepath):
     with open(inputFilepath, "rb") as ext: # Open file
 
         # MISTAKE, was using below line to read in as a string
-        #encryptedPhotoString = base64.b64encode(ext.read()) # Read as string
         encryptedPhotoString = b''.join(ext.readlines())                        
 
     M = myDecrypt(encryptedPhotoString, IV, key)
