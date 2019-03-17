@@ -40,6 +40,52 @@ def myEncrypt(message, key):
 
     return(C,IV)
 
+
+def MyencryptMAC(message, EncKey, HMACKey):
+
+     if(len(EncKey) < 32):
+        raise Exception('Key length is less than the required 32 bits')
+
+    # generate a 16 Bytes IV
+    # IV is used so if we encrypt an identical piece of data that it 
+    # comes out encrypted different each time its encrypted
+    backend = default_backend()
+    IV = os.urandom(16) # Because 16 byte blocks
+
+    # print("Before:")
+    # print(message[0:100])
+
+    # USE PKCS7 TO PAD!!!
+    # https://cryptography.io/en/latest/hazmat/primitives/padding/
+    padder = padding.PKCS7(128).padder()
+    padMessage = padder.update(message)
+    padMessage += padder.finalize()
+
+    cipher = Cipher(algorithms.AES(key), modes.CBC(IV), backend=backend)    #Cipher objects combine an algorithm such as AES with a mode like CBC
+                                                                            # Notice we pass in the (key) to our AES argument, and (IV) to our CBC mode
+    encryptor = cipher.encryptor()
+    C = encryptor.update(padMessage) + encryptor.finalize()                    # Cipher text = encypt message + finalize encryption
+    
+    C = h.update(C) # This should update the bytes with the HMAC
+
+    return(C,IV)
+
+    # Notes
+
+    # h = H(M)
+
+    # t = Mac (h)
+    #        k
+
+    with open(message, "rb") as f:
+        byte = f.read(1)
+        while byte:
+            # Do stuff with byte.
+            HMACKey.update(byte)
+            byte = f.read(1)
+
+    return message, IV, tag
+
     
 def myFileEncrypt(filepath):
 
@@ -53,12 +99,6 @@ def myFileEncrypt(filepath):
         photoBits = b''.join(ext.readlines()) 
 
     C, IV = myEncrypt(photoBits, key)
-
-    
-
-    HMACKey = hmac.HMAC(photoBits, hashes.SHA256(), backend=default_backend())
-
-    C, IV, tag = MyencryptMAC(photoBits, key, HMACKey)
     
     return(C, IV, key, ext)
 
@@ -100,18 +140,7 @@ def myFileDecrypt(key, IV, inputFilepath):
     return M
 
 
-def MyencryptMAC(message, EncKey, HMACKey):
 
-    
-
-    with open(message, "rb") as f:
-        byte = f.read(1)
-        while byte:
-            # Do stuff with byte.
-            HMACKey.update(byte)
-            byte = f.read(1)
-
-    return message, IV, tag
 
     
 def main():
