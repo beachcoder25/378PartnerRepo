@@ -1,6 +1,7 @@
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives import padding
+from cryptography.hazmat.primitives import padding, hmac, hashes
+from cryptography.exceptions import InvalidSignature
 
 from os import urandom, path
 
@@ -10,11 +11,13 @@ from handlers import cd
     This module AES encrypts files with CBC mode.
 '''
 
+# Debug flag for testing purposes
+DEBUG = False
+
 IV_SIZE = 16
 KEY_LENGTH = 32
 PADDING_BLOCK_SIZE = 128
 BACKEND = default_backend()
-
 
 def myEncrypt(message, key):
     '''
@@ -63,7 +66,6 @@ def myFileEncrypt(filename, klength=KEY_LENGTH):
 
     return (C, IV, key, ext)
 
-
 def myDecrypt(encrypted_message, key, IV):
     '''
         Decrypt data with a given key
@@ -84,7 +86,6 @@ def myDecrypt(encrypted_message, key, IV):
 
     return M
 
-
 def myFileDecrypt(filename, key, IV):
     '''
         Decrypt a file with a given key.
@@ -92,12 +93,83 @@ def myFileDecrypt(filename, key, IV):
     # Open encrypted file and save the bytes
     with open(filename, 'rb') as f:
         print('Reading file...')
-        content = b''.join(f.readlines())
+        C = b''.join(f.readlines())
 
-    result = myDecrypt(content, key, IV)
+    # Decrypt bytes
+    result = myDecrypt(C, key, IV)
 
     return result
 
+def myEncryptMAC(message, encKey, HMACKey):
+    '''
+        Encrypt data with an HMAC tag for verification.
+    '''
+
+    # Encrypt data
+    C, IV = myEncrypt(message, encKey)
+    
+    # Create HMAC object with encrypted data as input
+    h = hmac.HMAC(HMACKey, hashes.SHA256(), backend=BACKEND)
+    h.update(C)
+    
+    # Generate the tag by closing the hashing object
+    tag = h.finalize()
+
+    return (C, IV, tag)
+
+def myFileEncryptMAC(filename, klength=KEY_LENGTH):
+    '''
+        Encrypt a file with HMAC verification.
+    '''
+
+    # Open image file and save the bytes
+    with open(filename, 'rb') as f:
+        print('Reading file...')
+        content = b''.join(f.readlines())
+
+    # Get file extension
+    ext = path.splitext(filename)[1]
+
+    # Generate random key
+    encKey = urandom(klength)
+
+    # Generate random HMAC key
+    HMACKey = urandom(klength)
+
+    # Encrypt the contents of the file
+    C, IV, tag = myEncryptMAC(content, encKey, HMACKey)
+
+    return (C, IV, tag, encKey, HMACKey, ext)
+
+def myFileDecryptMAC(filename, encKey, HMACKey, IV, tag):
+    '''
+        Decrypt a file with a given key.
+    '''
+    # Open encrypted file and save the bytes
+    with open(filename, 'rb') as f:
+        print('Reading file...')
+        C = b''.join(f.readlines())
+
+    if DEBUG:
+        # Purposefully deprecate data for testing purposes
+        C += b'Append junk to test invalid data'
+
+    # Create HMAC object
+    h = hmac.HMAC(HMACKey, hashes.SHA256(), backend=BACKEND)
+    h.update(C)
+
+    # Verify the data with the HMAC tag
+    try:
+        h.verify(tag)
+    except InvalidSignature as e:
+        # Notify user and exit program if verification fails
+        print('Encrypted data was not valid.')
+        exit(1) 
+
+    # Decrypt bytes
+    result = myDecrypt(C, encKey, IV)
+
+    return result
 
 def main():
 
@@ -109,7 +181,7 @@ def main():
     filename = 'smile.jpg'
 
     # Encrypt the file
-    C, IV, key, ext = myFileEncrypt(f'{INPUT_DIR}/{filename}')
+    C, IV, tag, encKey, HMACKey, ext = myFileEncryptMAC(f'{INPUT_DIR}/{filename}')
 
     # Save the encrypted file
     with open(f'{OUTPUT_DIR}/encrypted_file{ext}', 'wb') as f:
@@ -117,7 +189,7 @@ def main():
         f.write(C)
 
     # Decrypt file
-    M = myFileDecrypt(f'{OUTPUT_DIR}/encrypted_file{ext}', key, IV)
+    M = myFileDecryptMAC(f'{OUTPUT_DIR}/encrypted_file{ext}', encKey, HMACKey, IV, tag)
 
     # Save decrypted file
     with open(f'{OUTPUT_DIR}/decrypted_file{ext}', 'wb') as f:
