@@ -18,9 +18,7 @@ def myEncrypt(message, key):
     if(len(key) < 32):
         raise Exception('Key length is less than the required 32 bits')
 
-    # generate a 16 Bytes IV
-    # IV is used so if we encrypt an identical piece of data that it 
-    # comes out encrypted different each time its encrypted
+   
     backend = default_backend()
     IV_SIZE = 16 # Because 16 byte blocks
     PAD_SIZE = 128
@@ -64,41 +62,24 @@ def myFileEncrypt(filepath):
 
 def MyencryptMAC(message, EncKey, HMACKey):
 
-    if(len(EncKey) < 32):
-        raise Exception('Key length is less than the required 32 bits')
-
-    # Notes
-
-    # h = H(M)
-
-    # t = Mac (h)
-    #        k
-
-    IV_SIZE = 16 # Because 16 byte blocks
-    PAD_SIZE = 128
-
-    backend = default_backend()
-    IV = os.urandom(IV_SIZE) 
-
-   
-    # USE PKCS7 TO PAD!!!
-    # https://cryptography.io/en/latest/hazmat/primitives/padding/
-    padder = padding.PKCS7(PAD_SIZE).padder()
-    padMessage = padder.update(message)
-    padMessage += padder.finalize()
-
-    cipher = Cipher(algorithms.AES(EncKey), modes.CBC(IV), backend=backend)    #Cipher objects combine an algorithm such as AES with a mode like CBC
-                                                                            # Notice we pass in the (key) to our AES argument, and (IV) to our CBC mode
-    encryptor = cipher.encryptor()
-    C = encryptor.update(padMessage) + encryptor.finalize()                    # Cipher text = encypt message + finalize encryption
-
-    #textAndKey = C + HMACKey # Concatenate encypted message with key to be hashed
+    C, IV = myEncrypt(message, EncKey)
     
-    tag = hmac.HMAC(HMACKey, hashes.SHA256(), backend=default_backend())
-    tag.update(C) # This should update the bytes with the HMAC
-    #tag.finalize()
-
+    h = hmac.HMAC(HMACKey, hashes.SHA256(), backend=default_backend())
+    h.update(C) # This should update the bytes with the HMAC
+    tag = h.finalize()
+     
     return(C, IV, tag)
+
+
+# def MydecryptMAC(C, IV, tag, EncKey, HMACKey):
+
+#     C, IV = myEncrypt(message, EncKey)
+    
+#     tag = hmac.HMAC(HMACKey, hashes.SHA256(), backend=default_backend())
+#     tag.update(C) # This should update the bytes with the HMAC
+#     tag.finalize()
+
+#     return(C, IV, tag)
 
 
 def MyFileEncryptMAC(filepath):
@@ -209,24 +190,30 @@ def mainMAC():
 
     # Message verification
     print("\nVerifying message:")
-    # receiverTag = hmac.HMAC(HMACKey, hashes.SHA256(), backend=default_backend())
-    # receiverTag.update(C + HMACKey)
-    # receiverTag.verify(C + HMACKey)
-    tag.verify(C)
-    print("Message verified")
+    h = hmac.HMAC(HMACKey, hashes.SHA256(), backend=default_backend())
+    h.update(C)
+    receiverTag = h.finalize()
 
-    # Decyption
-    M = myFileDecrypt(EncKey, IV, encryptedFilepath)
-    print("Writing decrypted File")
+    if(tag == receiverTag):
+        print("Tags are equal")
+        # Decyption
+        M = myFileDecrypt(EncKey, IV, encryptedFilepath)
+        print("Writing decrypted File")
 
-    # DESKTOP
-    file = open("C:/Users/corni/Desktop/outputfile.jpg","wb") # wb for writing in binary mode
+        # DESKTOP
+        file = open("C:/Users/corni/Desktop/outputfileXXX.jpg","wb") # wb for writing in binary mode
 
-    # LAPTOP
-    #file = open("C:/Users/Jonah/Desktop/378Lab/outputfile.jpg","wb") # wb for writing in binary mode
+        # LAPTOP
+        #file = open("C:/Users/Jonah/Desktop/378Lab/outputfile.jpg","wb") # wb for writing in binary mode
+        
+        file.write(M) # Writes cipher byte-message into text file
+        file.close() 
+
+    else:
+        print("Tags not equal")
+    # print("Message verified")
+
     
-    file.write(M) # Writes cipher byte-message into text file
-    file.close() 
 
 
 mainMAC()
