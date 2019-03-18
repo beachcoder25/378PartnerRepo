@@ -6,12 +6,12 @@ This collaborative repository contains projects demonstrating basic implementati
 
 1. Clone the repository using this [link](https://github.com/beachcoder25/378PartnerRepo.git).
 
-2. In directories with which a `requirements.txt` file is present, run the following command in a terminal:
+2. In the project directories where a `requirements.txt` file is present, run the following command in a terminal:
 ```
     pip install -r requirements.txt
 ```
 
-3. In directories with a `package.json` file, run the following terminal command:
+3. In the project directories with a `package.json` file, run the following terminal command:
 ```
     npm install
 ```
