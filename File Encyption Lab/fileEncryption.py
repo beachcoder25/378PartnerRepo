@@ -89,7 +89,7 @@ def myFileDecrypt(key, IV, inputFilepath):
     encryptedPhotoString = ""
 
     # Read encypted data back
-    with open(inputFilepath, "rb") as ext: # Open file
+    with open(inputFilepath, "rb") as ext: # Open your file
 
         # MISTAKE, was using below line to read in as a string
         #encryptedPhotoString = base64.b64encode(ext.read()) # Read as string
