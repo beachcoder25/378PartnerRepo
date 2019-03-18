@@ -96,7 +96,7 @@ def MyencryptMAC(message, EncKey, HMACKey):
     
     tag = hmac.HMAC(HMACKey, hashes.SHA256(), backend=default_backend())
     tag.update(C) # This should update the bytes with the HMAC
-    tag.finalize()
+    #tag.finalize()
 
     return(C, IV, tag)
 
@@ -108,7 +108,7 @@ def MyFileEncryptMAC(filepath):
     # You return the cipher C, IV, key & the extension of the file (as a string).
 
     HMAC_KEY = 16
-    HMAC_KEY_LEN = len(HMAC_KEY)
+    HMAC_KEY_LEN = len(str(HMAC_KEY))
 
     HMACKey = os.urandom(HMAC_KEY)
 
@@ -206,10 +206,13 @@ def mainMAC():
     # Laptop
     # encryptedFilepath = "C:/Users/Jonah/Desktop/378Lab/testfile.txt"
 
-    print("Verifying message")
-    receiverTag = hmac.HMAC(HMACKey, hashes.SHA256(), backend=default_backend())
-    receiverTag.update(C)
-    receiverTag.verify(C)
+
+    # Message verification
+    print("\nVerifying message:")
+    # receiverTag = hmac.HMAC(HMACKey, hashes.SHA256(), backend=default_backend())
+    # receiverTag.update(C + HMACKey)
+    # receiverTag.verify(C + HMACKey)
+    tag.verify(C)
     print("Message verified")
 
     # Decyption
@@ -226,7 +229,7 @@ def mainMAC():
     file.close() 
 
 
-
+mainMAC()
 
 # def main():
 
