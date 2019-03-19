@@ -11,7 +11,7 @@ This collaborative repository contains projects demonstrating basic implementati
     pip install -r requirements.txt
 ```
 
-3. In the project directories with a `package.json` file, run the following terminal command:
+3. In the project directories where a `package.json` file is present, run the following command in a terminal:
 ```
     npm install
 ```
