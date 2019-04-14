@@ -35,7 +35,7 @@ def findKeys(filePath):
     pubExists = os.path.isfile(pubFilePath)
     privExists = os.path.isfile(privFilePath)
 
-    PRIV_PASS = os.urandom(PASS_SIZE) # In bytes
+    PRIV_PASS = os.urandom(PASS_SIZE) # In bytes!!!
     # print(type(PRIV_PASS))
     # print(PRIV_PASS)
 
