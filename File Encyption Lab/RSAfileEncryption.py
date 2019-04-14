@@ -26,8 +26,8 @@ def findKeys(filePath):
     privFound = 1
     pubFound = 1
 
-    pubKey = "/public3.pem"
-    privKey = "/private3.pem"
+    pubKey = "/public99.pem"
+    privKey = "/private99.pem"
 
     pubFilePath = filePath + pubKey
     privFilePath = filePath + privKey
@@ -36,15 +36,23 @@ def findKeys(filePath):
     privExists = os.path.isfile(privFilePath)
 
     PRIV_PASS = os.urandom(PASS_SIZE) # In bytes!!!
-    # print(type(PRIV_PASS))
-    # print(PRIV_PASS)
 
 
-    # Check if private key exists 
+    # Check if keys already exist 
 
     if privExists:
         PRIV_FOUND = 1
         print("\nFound private key! \nFilePath: " + privFilePath)
+
+            # Double-check that public key now exists
+        if pubExists:
+            PUB_FOUND = 1
+            print("Found public key! \nFilePath: " + pubFilePath)
+            
+
+        elif (pubExists == False):
+            PUB_FOUND = 0
+            print("Did not find public key!\nBoolean value: " + str(PUB_FOUND))
         
 
     elif (pubExists == False):
@@ -52,6 +60,8 @@ def findKeys(filePath):
         print("\nDid not find private key!\nBoolean value: " + str(PRIV_FOUND))     
 
         # generate private key
+
+        print("\nGenerating privKey:")
 
         private_key = rsa.generate_private_key(
             public_exponent = 65537, 
@@ -65,26 +75,24 @@ def findKeys(filePath):
             format = serialization.PrivateFormat.TraditionalOpenSSL, 
             encryption_algorithm=serialization.BestAvailableEncryption(PRIV_PASS))
         
+
         with open(FILE_PATH + privKey, 'wb') as f:
+            print("Writing privKey:")
             f.write(private_pem)
 
         # Serialize public
+
+        print("Generating pubKey:")
 
         public_key = private_key.public_key()
         public_pem = public_key.public_bytes(encoding = serialization.Encoding.PEM, format = serialization.PublicFormat.SubjectPublicKeyInfo)
         
         with open(FILE_PATH + pubKey, 'wb') as f:
+
+            print("Writing pubKey:")
             f.write(public_pem)
 
-        # Double-check that public key now exists
-        if pubExists:
-            PUB_FOUND = 1
-            print("Found public key! \nFilePath: " + pubFilePath)
-            
-
-        elif (pubExists == False):
-            PUB_FOUND = 0
-            print("Did not find public key!\nBoolean value: " + str(PUB_FOUND))
+        
  
 
 
