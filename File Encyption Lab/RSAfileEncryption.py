@@ -26,8 +26,8 @@ def findKeys(filePath):
     privFound = 1
     pubFound = 1
 
-    pubKey = "/public2.pem"
-    privKey = "/private2.pem"
+    pubKey = "/public3.pem"
+    privKey = "/private3.pem"
 
     pubFilePath = filePath + pubKey
     privFilePath = filePath + privKey
@@ -44,12 +44,12 @@ def findKeys(filePath):
 
     if privExists:
         PRIV_FOUND = 1
-        print("\nFound public key! \nFilePath: " + privFilePath)
+        print("\nFound private key! \nFilePath: " + privFilePath)
         
 
     elif (pubExists == False):
         PRIV_FOUND = 0
-        print("\nDid not find public key!\nBoolean value: " + str(PRIV_FOUND))     
+        print("\nDid not find private key!\nBoolean value: " + str(PRIV_FOUND))     
 
         # generate private key
 
