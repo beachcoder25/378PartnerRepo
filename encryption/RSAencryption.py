@@ -160,7 +160,7 @@ def main():
                 dump(output, fp)
             
             # Delete original file using os module
-            remove(filename)
+            remove(target_file)
 
 
     for result in results:
