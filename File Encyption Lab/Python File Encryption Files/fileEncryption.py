@@ -13,6 +13,7 @@ HMAC_KEY = 16
 HMAC_KEY_LEN = len(str(HMAC_KEY))
 KEY_SIZE = 32
 ENC_KEY_SIZE = 32
+FILE_PATH = "C:/Users/corni/Desktop/ransomTest"
 
 
 # Encrypt message using AES, must pad message, and assign proper cipher mode (AES-CBC mode)
@@ -147,13 +148,12 @@ def myFileDecrypt(key, IV, inputFilepath):
     return M
 
 
-
 def mainMACDesktop():
     
     #JSON Attempt
     # JSONfile = "data.json"
-    # data = {}
-    # filepath = "C:/Users/corni/Desktop/JSON.txt"
+    data = {}
+    # filepath = "C:/Users/corni/Desktop/JSON.txt" # This the file you are trying to encrypt
 
     desktopFilePath = "C:/Users/corni/Desktop/panda.jpg"
     
@@ -161,7 +161,7 @@ def mainMACDesktop():
     # Desktop
     C, IV, tag, EncKey, HMACKey, ext = MyFileEncryptMAC(desktopFilePath)
 
-    # data[filepath] = {
+    # data[filepath] = { # Store in JSON so you can read out for decryption
     #     "C" : str(C),
     #     "IV" : str(IV),
     #     "tag" : str(tag),
@@ -207,6 +207,8 @@ def mainMACDesktop():
     # }
 
     # Write to JSON file
+
+    
     # s = json.dumps(data)
     # with open("data.json", "w") as fp:
     #     json.dump(s, fp)
@@ -319,7 +321,7 @@ def mainMACLaptop():
     file.write(M) # Writes cipher byte-message into text file
     file.close() 
 
-mainMACDesktop()
+# mainMACDesktop()
 
 # if __name__ == '__main__':
 #     main()
