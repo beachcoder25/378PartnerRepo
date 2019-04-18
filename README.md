@@ -20,7 +20,7 @@ This collaborative repository contains projects demonstrating basic implementati
 
 ## List of Projects
 
-* `AES Encryption`
+* `AES & RSA Encryption`
     * Encrypt a file using AES encryption in CBC mode with HMAC verification
 
 > NOTE: These projects pertain to a university course. New projects will be added throughout the duration of the course.
