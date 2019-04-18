@@ -30,10 +30,5 @@ def getAllFiles(rootPath='.', topdown=False):
         # For each file, append full path to list
         for name in files:
             files_found.append(join(root, name))
-
-        # For subdirectories, make recursive call and concatenate return value to list
-        for name in dirs:
-            files_found += getAllFiles(join(root, name))
-    
-    # TO-DO: Remove redundant results... Consider using set() object?
+            
     return files_found
