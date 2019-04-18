@@ -1,15 +1,19 @@
 from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives import padding, serialization
-from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.primitives import hashes, serialization
+from cryptography.hazmat.primitives.asymmetric import rsa, padding
 
 from getpass import getpass
 from os import walk, getcwd, listdir, remove
-from os.path import isfile
-from json import dump
+from os.path import isfile, join
+from json import dump, dumps
 from sys import argv
 
-from handlers import cd
-from encryption import myFileEncryptMAC
+from handlers import cd, getAllFiles
+from encryption import myFileEncryptMAC, myFileDecryptMAC
+
+# import logging
+
+# logging.basicConfig(level=logging.INFO)
 
 '''
     TO-DO:
@@ -28,7 +32,7 @@ from encryption import myFileEncryptMAC
 '''
 
 # Debug flag for testing purposes
-DEBUG = False
+DEBUG = True
 
 # Get directory of script
 CWD = getcwd()
@@ -97,6 +101,8 @@ def generateKeyPair(private_key_path, public_key_path, public_exponent=65537, ke
     '''
         Generates a private and public RSA key pair at the given paths.
     '''
+    key_passphrase = ''
+
     if password_required:
         print('Enter a password for the private key:')
         key_passphrase = getpass() # Hide text while password is entered
@@ -105,24 +111,26 @@ def generateKeyPair(private_key_path, public_key_path, public_exponent=65537, ke
         encryption_algorithm = serialization.NoEncryption()
 
     # Generate RSA private key
-    key = rsa.generate_private_key(public_exponent=public_exponent,key_size=key_size,backend=backend)
+    private_key = rsa.generate_private_key(public_exponent=public_exponent,key_size=key_size,backend=backend)
 
     # Save the private key
     with open(private_key_path, 'wb') as f:
-        f.write(key.private_bytes(
+        f.write(private_key.private_bytes(
             encoding=serialization.Encoding.PEM,
             format=serialization.PrivateFormat.TraditionalOpenSSL,
             encryption_algorithm=encryption_algorithm
         ))
 
+    public_key = private_key.public_key()
     # Save the public key
     with open(public_key_path, 'wb') as f:
-        f.write(key.public_bytes(
+        f.write(public_key.public_bytes(
             encoding=serialization.Encoding.PEM,
             format=serialization.PublicFormat.SubjectPublicKeyInfo
         ))
     
     return key_passphrase
+
 
 def main():
 
@@ -131,37 +139,42 @@ def main():
     # Check if a .pem file for private key exists
     if not(isfile(RSA_PRIVATE_KEY_PATH)):
         print('A .pem file containing a private key is missing. Generating a new one...')
-        RSA_PRIVATE_KEY_PASSWORD = generateKeyPair(RSA_PRIVATE_KEY_PATH, RSA_PUBLIC_KEY_PATH)
+        RSA_PRIVATE_KEY_PASSWORD = generateKeyPair(RSA_PRIVATE_KEY_PATH, RSA_PUBLIC_KEY_PATH, password_required=False)
 
     # Initialize target directory to encrypt relative to directory of script {CWD}
     TARGET_DIR = f'{CWD}/files-to-RSA-encrypt'
 
     # Get target files from directory
-    # NOTE: May want to use os.walk instead of listdir
-    target_files = listdir(TARGET_DIR)
+    # target_files = listdir(TARGET_DIR)
+    target_files = getAllFiles(TARGET_DIR)
 
-    # cd is a contextmanager that ensures all operations are not
-    # executed outside the target directory (even when Exceptions are raised)
-    with cd(TARGET_DIR):
-        for target_file in target_files:
-            # Initialize JSON output as dictionary
-            output = dict()
+    # Debugging purposes
+    if DEBUG:
+        from pprint import PrettyPrinter
+        pp = PrettyPrinter()
+        pp.pprint(target_files)
+        if int(input('Continue? [1] Yes [2] No\n')) == 2:
+            exit(0)
 
-            # NOTE: Can be written in one line
-            RSACipher, C, IV, tag, ext = myRSAEncrypt(target_file) 
-            output['RSACipher'] = RSACipher
-            output['C'] = C
-            output['IV'] = IV
-            output['tag'] = tag
-            output['ext'] = ext
 
-            # TO-DO: Need to solve encoding
-            with open(f'{target_file}-out.json', 'wb') as fp:
-                dump(output, fp)
-            
-            # Delete original file using os module
-            remove(target_file)
+    for target_file in target_files:
+        # Initialize JSON output as dictionary
+        output = dict()
 
+        # NOTE: Can be written in one line
+        RSACipher, C, IV, tag, ext = myRSAEncrypt(target_file) 
+        output['RSACipher'] = RSACipher
+        output['C'] = C
+        output['IV'] = IV
+        output['tag'] = tag
+        output['ext'] = ext
+
+        # TO-DO: Need to solve encoding
+        with open(f'{target_file}-out.json', 'wb') as fp:
+            dump(output, fp)
+        
+        # # Delete original file using os module
+        # remove(target_file)
 
     for result in results:
         pass
