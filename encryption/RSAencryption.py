@@ -146,7 +146,7 @@ def main():
 
     # Get target files from directory
     # target_files = listdir(TARGET_DIR)
-    target_files = getAllFiles(TARGET_DIR)
+    target_files = getAllFiles(TARGET_DIR, topdown=True)
 
     # Debugging purposes
     if DEBUG:
