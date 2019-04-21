@@ -1,4 +1,5 @@
-from os import getcwd, chdir
+from os import getcwd, chdir, walk
+from os.path import join
 from contextlib import contextmanager
 
 '''
@@ -19,3 +20,15 @@ def cd(dest):
         yield chdir(dest)
     finally:
         chdir(origin)
+
+def getAllFiles(rootPath='.', topdown=False):
+    '''
+        Creates a list of all files located within a directory tree.
+    '''
+    files_found = []
+    for root, dirs, files in walk(rootPath, topdown=topdown):
+        # For each file, append full path to list
+        for name in files:
+            files_found.append(join(root, name))
+            
+    return files_found

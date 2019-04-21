@@ -1,4 +1,4 @@
-# AES Encryption
+# AES & RSA Encryption
 
 This module encrypts a file with AES and CBC mode using the __cryptography__ library in Python.
 
