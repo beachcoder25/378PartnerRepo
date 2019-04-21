@@ -197,21 +197,6 @@ def mainMACDesktop():
 
     M = MydecryptMAC(C, IV, tag, EncKey, HMACKey, encryptedFilepath)
 
-    # data[filepath] = {
-    #     "C" : str(C),
-    #     "IV" : str(IV),
-    #     "tag" : str(tag),
-    #     "EncKey": str(EncKey),
-    #     "HMACKey" : str(HMACKey),
-    #     "ext" : ext
-    # }
-
-    # Write to JSON file
-
-    
-    # s = json.dumps(data)
-    # with open("data.json", "w") as fp:
-    #     json.dump(s, fp)
         
     print("Writing decrypted File")
 
