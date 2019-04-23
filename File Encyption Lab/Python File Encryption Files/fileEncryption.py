@@ -75,10 +75,17 @@ def MyencryptMAC(message, EncKey, HMACKey):
 # Decrypt HMAC, authenticate tags before decrypting as normal
 
 def MydecryptMAC(C, IV, tag, EncKey, HMACKey, encryptedFilepath):
+
+    print("C in MydecryptMAC")
+    print(C[0:10])
     
     h = hmac.HMAC(HMACKey, hashes.SHA256(), backend=default_backend())
     h.update(C) # This should update the bytes with the HMAC
     receiverTag = h.finalize()
+
+    # print("TAGS:")
+    # print(receiverTag)
+    # print(tag)
 
     # Message autheticated
 
@@ -111,6 +118,21 @@ def MyFileEncryptMAC(filepath):
 
 # Takes a ciphertext and returns unpadded original message
 
+def MyFileEncryptMACRSA(filepath):
+
+    HMACKey = os.urandom(HMAC_KEY) # Generate 16 Byte key
+    EncKey = os.urandom(ENC_KEY_SIZE) # Generate 32 Byte key
+    
+    with open(filepath, "rb") as ext: # Open file
+        photoBits = b''.join(ext.readlines()) 
+
+    C, IV, tag = MyencryptMAC(photoBits, EncKey, HMACKey)
+    
+    return(C, IV, tag, EncKey, HMACKey, ext)
+
+
+# Takes a ciphertext and returns unpadded original message
+
 def myDecrypt(C, IV, key):
 
 
@@ -118,11 +140,13 @@ def myDecrypt(C, IV, key):
         raise Exception('Key length is less than the required 32 bits')
     
     # Reverse of encyrption
+    print("C in myDecrypt")
+    print(C[0:10])
 
     backend = default_backend()
     cipher = Cipher(algorithms.AES(key), modes.CBC(IV), backend=backend) 
     decryptor = cipher.decryptor()
-
+    
     M = decryptor.update(C) + decryptor.finalize()
     unpadder = padding.PKCS7(128).unpadder()
 
@@ -137,8 +161,9 @@ def myDecrypt(C, IV, key):
 
 def myFileDecrypt(key, IV, inputFilepath):
 
+    print("\n\n")
     # Read encypted data back
-    with open(inputFilepath, "rb") as ext: # Open file
+    with open('C:/Users/corni/Desktop/ransomTest/files/panda.jpg', "rb") as ext: # Open file
 
         # MISTAKE, was using below line to read in as a string
         encryptedPhotoString = b''.join(ext.readlines())                        
@@ -146,6 +171,8 @@ def myFileDecrypt(key, IV, inputFilepath):
     M = myDecrypt(encryptedPhotoString, IV, key)
     
     return M
+
+
 
 
 def mainMACDesktop():
@@ -160,6 +187,9 @@ def mainMACDesktop():
     
     # Desktop
     C, IV, tag, EncKey, HMACKey, ext = MyFileEncryptMAC(desktopFilePath)
+
+    print("C after created")
+    print(C[0:10])
 
     # data[filepath] = { # Store in JSON so you can read out for decryption
     #     "C" : str(C),
@@ -191,12 +221,25 @@ def mainMACDesktop():
 
     # Message verification
     print("\nVerifying message:")
-    h = hmac.HMAC(HMACKey, hashes.SHA256(), backend=default_backend())
-    h.update(C)
-    receiverTag = h.finalize()
+    
 
     M = MydecryptMAC(C, IV, tag, EncKey, HMACKey, encryptedFilepath)
 
+    # data[filepath] = {
+    #     "C" : str(C),
+    #     "IV" : str(IV),
+    #     "tag" : str(tag),
+    #     "EncKey": str(EncKey),
+    #     "HMACKey" : str(HMACKey),
+    #     "ext" : ext
+    # }
+
+    # Write to JSON file
+
+    
+    # s = json.dumps(data)
+    # with open("data.json", "w") as fp:
+    #     json.dump(s, fp)
         
     print("Writing decrypted File")
 
@@ -210,7 +253,7 @@ def mainMACDesktop():
     file.close() 
 
 
-
+mainMACDesktop()
 
 
 

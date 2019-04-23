@@ -117,7 +117,7 @@ def generateKeyPair(private_key_path, public_key_path, public_exponent=65537, ke
     with open(private_key_path, 'wb') as f:
         f.write(private_key.private_bytes(
             encoding=serialization.Encoding.PEM,
-            format=serialization.PrivateFormat.TraditionalOpenSSL,
+            format=serialization.PrivateFormat.PKCS8,
             encryption_algorithm=encryption_algorithm
         ))
 
