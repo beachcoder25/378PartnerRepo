@@ -121,7 +121,9 @@ def generateKeyPair(private_key_path, public_key_path, public_exponent=65537, ke
             encryption_algorithm=encryption_algorithm
         ))
 
+    # Generate RSA public key using private key
     public_key = private_key.public_key()
+
     # Save the public key
     with open(public_key_path, 'wb') as f:
         f.write(public_key.public_bytes(
@@ -170,7 +172,7 @@ def main():
         output['ext'] = ext
 
         # TO-DO: Need to solve encoding
-        with open(f'{target_file}-out.json', 'wb') as fp:
+        with open(f'{target_file}-out.json', 'w') as fp:
             dump(output, fp)
         
         # # Delete original file using os module
